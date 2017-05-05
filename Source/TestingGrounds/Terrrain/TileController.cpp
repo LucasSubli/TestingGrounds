@@ -3,6 +3,7 @@
 #include "TestingGrounds.h"
 #include "TileController.h"
 #include "DrawDebugHelpers.h"
+#include "ActorPool.h"
 
 
 // Sets default values
@@ -10,6 +11,11 @@ ATileController::ATileController()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	NavigationBoundsOffset = FVector(2000, 0, 0);
+
+	MinExtent = FVector(0, -2000, 0);
+	MaxExtent = FVector(4000, 2000, 0);
 
 }
 
@@ -22,10 +28,37 @@ void ATileController::BeginPlay() {
 
 }
 
+void ATileController::EndPlay(const EEndPlayReason::Type EndPlayReason) {
+
+	UE_LOG(LogTemp, Warning, TEXT("[%s] Endplay"), *GetName());
+	Pool->Return(NavMeshBoundsVolume);
+	UE_LOG(LogTemp, Warning, TEXT("[%s] Returned: {%s}"), *GetName(), *NavMeshBoundsVolume->GetName());
+	
+	Super::EndPlay(EndPlayReason);
+}
+
 // Called every frame
 void ATileController::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
+}
+
+void ATileController::SetPool(UActorPool * InPool) {
+	Pool = InPool;
+	PositionNavMeshBoundsVolume();
+}
+
+void ATileController::PositionNavMeshBoundsVolume() {
+
+	NavMeshBoundsVolume = Pool->Checkout();
+
+	if (NavMeshBoundsVolume == nullptr) {
+		UE_LOG(LogTemp, Error, TEXT("[%s] Not enough actors in pool."), *GetName());
+		return;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("[%s] Checked out: {%s}"), *GetName(), *NavMeshBoundsVolume->GetName());
+	NavMeshBoundsVolume->SetActorLocation(GetActorLocation() + NavigationBoundsOffset);
+	GetWorld()->GetNavigationSystem()->Build();
 }
 
 void ATileController::PlaceActors(TSubclassOf<AActor> ToSpawn, int MinSpawn, int MaxSpawn, float MinScale, float MaxScale, float Radius) {
@@ -43,9 +76,7 @@ void ATileController::PlaceActors(TSubclassOf<AActor> ToSpawn, int MinSpawn, int
 }
 
 bool ATileController::FindEmptyLocation(FVector& OutLocation, float Radius) {
-	FVector Min(0, -2000, 0);
-	FVector Max(4000, 2000, 0);
-	FBox Bounds(Min, Max);
+	FBox Bounds(MinExtent, MaxExtent);
 	const int MAX_ATTEMPTS = 100;
 	for (size_t i = 0; i < MAX_ATTEMPTS; i++) {
 		FVector CandidatePoint = FMath::RandPointInBox(Bounds);
