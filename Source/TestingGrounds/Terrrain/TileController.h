@@ -5,6 +5,21 @@
 #include "GameFramework/Actor.h"
 #include "TileController.generated.h"
 
+/**
+ * Struct for position for random props and AI
+ */
+USTRUCT()
+struct FSpawnPosition {
+	GENERATED_USTRUCT_BODY()
+
+	FVector Location;
+
+	float Rotation; 
+
+	float Scale;
+
+};
+
 
 class UActorPool;
 
@@ -19,6 +34,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Spawnables")
 	void PlaceActors(TSubclassOf<AActor> ToSpawn, int MinSpawn = 1, int MaxSpawn = 1, float MinScale = 1, float MaxScale = 1, float Radius = 500);
+
+	UFUNCTION(BlueprintCallable, Category = "Spawnables")
+	void PlaceAIPawns(TSubclassOf<APawn> ToSpawn, int MinSpawn = 1, int MaxSpawn = 1, float Radius = 500);
 
 protected:
 	// Called when the game starts or when spawned
@@ -49,11 +67,15 @@ private:
 
 	bool FindEmptyLocation(FVector& OutLocation, float Radius);
 	
-	void PlaceActor(TSubclassOf<AActor> ToSpawn, FVector SpawnPoint, float Rotation, float Scale);
+	void PlaceActor(TSubclassOf<AActor> ToSpawn, const FSpawnPosition& SpawnPosition);
+
+	void PlaceAIPawn(TSubclassOf<APawn> ToSpawn, const FSpawnPosition& SpawnPosition);
 	
 	bool CanSpawnAtLocation(FVector Location, float Radius);
 
 	void PositionNavMeshBoundsVolume();
+
+	TArray<FSpawnPosition> RandomSpawnPositions(int MinSpawn, int MaxSpawn, float MinScale, float MaxScale, float Radius, TArray<FSpawnPosition> &SpawnPositions);
 
 	UActorPool* Pool;
 
