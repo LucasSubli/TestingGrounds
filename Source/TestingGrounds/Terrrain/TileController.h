@@ -66,10 +66,13 @@ private:
 	bool CastSphere(FVector Location, float Radius);
 
 	bool FindEmptyLocation(FVector& OutLocation, float Radius);
+
+	template<class T>
+	void RandomlyPlaceActors(TSubclassOf<T> ToSpawn, int MinSpawn = 1, int MaxSpawn = 1, float MinScale = 1, float MaxScale = 1, float Radius = 500);
 	
 	void PlaceActor(TSubclassOf<AActor> ToSpawn, const FSpawnPosition& SpawnPosition);
 
-	void PlaceAIPawn(TSubclassOf<APawn> ToSpawn, const FSpawnPosition& SpawnPosition);
+	void PlaceActor(TSubclassOf<APawn> ToSpawn, const FSpawnPosition& SpawnPosition);
 	
 	bool CanSpawnAtLocation(FVector Location, float Radius);
 
