@@ -8,6 +8,12 @@ What things you need to have to be able to run:
 * Unreal Engine - v4.15+
 * Some C++ compiler and IDE (Visual Studio 2015+ recommended)
 
+
+## Video
+
+[Gameplay Youtube video](https://www.youtube.com/watch?v=GRKsI0ekI3A)
+
+
 ## Notes
 
 This is a code for learning how to program on the unreal engine, do not expect anything more than some blocks shooting spheres at other blocks with made-in-2-min custom FX. 
